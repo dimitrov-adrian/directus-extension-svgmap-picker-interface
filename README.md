@@ -46,3 +46,5 @@ you could reuse the extension and pack with your custom map. Place it in your
 
 Take a look at
 [example bundle](https://github.com/dimitrov-adrian/directus-extension-svgmap-picker-interface/blob/main/reusables/example/index.js)
+
+Important here is that you still need to install extension.
