@@ -1,0 +1,54 @@
+{
+  "name": "directus-extension-svgmapbox-picker-interface",
+  "version": "0.0.1",
+  "author": {
+    "email": "dimitrov.adrian+gh@gmail.com",
+    "name": "Adrian Dimitrov"
+  },
+  "license": "gpl-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dimitrov-adrian/directus-extension-svgmap-picker-interface.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dimitrov-adrian/directus-extension-svgmap-picker-interface/issues"
+  },
+  "homepage": "https://github.com/dimitrov-adrian/directus-extension-svgmap-picker-interface",
+  "keywords": [
+    "directus",
+    "directus-extension",
+    "directus-custom-interface",
+    "SVG",
+    "image-map",
+    "image-map-picker"
+  ],
+  "directus:extension": {
+    "type": "interface",
+    "path": "dist/index.js",
+    "source": "src/index.ts",
+    "host": "^v9.0.0",
+    "hidden": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "directus-extension build",
+    "dev": "directus-extension build -w --no-minify"
+  },
+  "devDependencies": {
+    "@directus/extensions-sdk": "^9.5.0",
+    "directus-codestyle": "https://github.com/dimitrov-adrian/directus-codestyle.git",
+    "typescript": "^4.5.2"
+  },
+  "prettier": "directus-codestyle/prettier",
+  "stylelint": {
+    "extends": "directus-codestyle/stylelint"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/directus-codestyle/.eslintrc.js",
+    "parserOptions": {
+      "sourceType": "module"
+    }
+  }
+}
