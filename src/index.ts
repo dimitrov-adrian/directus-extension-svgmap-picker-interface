@@ -7,18 +7,32 @@ export default defineInterface({
 	description: 'Select a value from a SVG map',
 	icon: 'grain',
 	component: InterfaceSlug,
-	types: ['string', 'integer', 'bigInteger', 'uuid'],
+	types: ['string', 'integer', 'bigInteger', 'uuid', 'csv'],
+	relational: true,
+	localTypes: ['m2o', 'standard'],
 	group: 'selection',
 	options: () => {
 		return [
 			{
 				field: 'selector',
-				name: 'Selector',
+				name: 'CSS selector',
 				meta: {
 					width: 'full',
 					interface: 'input',
 					options: {
 						placeholder: '$t:interfaces.input-autocomplete-api.results_path',
+					},
+				},
+			},
+			{
+				field: 'svg',
+				name: 'SVG',
+				meta: {
+					width: 'full',
+					interface: 'input-code',
+					options: {
+						language: 'xml',
+						placeholder: '$t:xml',
 					},
 				},
 			},
@@ -53,18 +67,6 @@ export default defineInterface({
 				},
 				schema: {
 					default_value: false,
-				},
-			},
-			{
-				field: 'svg',
-				name: 'SVG',
-				meta: {
-					width: 'full',
-					interface: 'input-code',
-					options: {
-						language: 'xml',
-						placeholder: '$t:xml',
-					},
 				},
 			},
 		];

@@ -7,9 +7,12 @@ import { defineComponent, ref, watch, onMounted } from 'vue';
 
 export default defineComponent({
 	props: {
-		field: {
+		type: {
 			type: String,
-			default: null,
+			required: true,
+		},
+		collection: {
+			type: String,
 			required: true,
 		},
 		value: {
@@ -42,13 +45,16 @@ export default defineComponent({
 		},
 	},
 	emits: ['input'],
-	setup(props, { emit }) {
+	setup(props, { emit, attrs }) {
 		if (!props.selector || !props.svg) return;
 
 		const activeClassName = 'active';
+		const isNumericValue = ['bigInteger', 'integer'].includes(props.type);
+		const haveForeignKey = attrs['field-data']?.schema?.foreign_key_column;
+
 		const mapbox = ref<HTMLElement>();
 		const mapboxCustomCSS = ref<HTMLStyleElement>();
-		const elements = ref<NodeListOf<HTMLElement>>([]);
+		const elements = ref<NodeListOf<HTMLElement>>();
 
 		onMounted(() => {
 			if (!mapbox.value) return;
@@ -61,24 +67,31 @@ export default defineComponent({
 			shadow.querySelector('svg')?.prepend(mapboxCustomCSS.value);
 
 			try {
-				elements.value = shadow.querySelectorAll(props.selector);
-
-				elements.value.forEach((item, index) => {
-					item.tabIndex = index + 1;
-					item.addEventListener('keyup', keySelectHandler);
-					item.addEventListener('click', clickSelectHandler);
-				});
-
-				populate(props.value);
+				document.createDocumentFragment().querySelector(props.selector);
 			} catch (error) {
 				window.console.warn('directus-extension-svgmap-picker: Invalid selector: %s', props.selector);
 			}
+
+			elements.value = shadow.querySelectorAll(props.selector);
+			elements.value?.forEach((item, index) => {
+				item.tabIndex = index + 1;
+				item.addEventListener('keyup', keySelectHandler);
+				item.addEventListener('click', clickSelectHandler);
+			});
+
+			populate(props.value);
 		});
 
 		watch(
 			() => props.value,
 			(newVal, oldVal) => {
 				if (newVal === oldVal) return;
+
+				if (haveForeignKey && typeof newVal === 'object') {
+					populate(newVal ? newVal[haveForeignKey] : null);
+					return;
+				}
+
 				populate(newVal);
 			}
 		);
@@ -87,32 +100,73 @@ export default defineComponent({
 			mapbox,
 		};
 
-		function populate(value: string | number) {
+		function populate(value: any) {
 			if (!elements.value) return;
 
 			for (const item of elements.value as NodeListOf<HTMLElement>) {
-				item.classList.toggle(activeClassName, value ? itemValue(item) === value : false);
+				const isActive = value
+					? props.type === 'csv'
+						? value.includes(itemValue(item))
+						: itemValue(item) === value
+					: false;
+				item.classList.toggle(activeClassName, isActive);
 			}
 		}
 
-		function keySelectHandler(event: KeyboardEvent) {
+		function keySelectHandler(this: HTMLElement, event: KeyboardEvent) {
 			if (!(event.key === ' ' || event.key === 'Spacebar' || event.key === 'Enter')) return;
+
 			event.preventDefault();
-			emitter(this as HTMLElement);
+			emitter(this);
 		}
 
-		function clickSelectHandler(event: MouseEvent) {
+		function clickSelectHandler(this: HTMLElement, event: MouseEvent) {
 			event.preventDefault();
-			emitter(this as HTMLElement);
+			emitter(this);
 		}
 
 		function emitter(element: HTMLElement) {
 			const value = itemValue(element);
-			emit('input', value === props.value ? null : value);
+
+			if (!value) {
+				emit('input', null);
+				return;
+			}
+
+			if (props.type === 'csv') {
+				if (!props.value) {
+					emit('input', [value]);
+					return;
+				}
+
+				if (props.value.includes(value)) {
+					const newValue = props.value.filter((item: string) => item !== value);
+					emit('input', newValue.length > 0 ? newValue : null);
+				} else {
+					emit('input', [...props.value, value]);
+				}
+
+				return;
+			}
+
+			if (value === props.value) {
+				emit('input', null);
+				return;
+			}
+
+			if (haveForeignKey) {
+				emit('input', { [haveForeignKey]: value });
+				return;
+			}
+
+			emit('input', value);
 		}
 
-		function itemValue(item: HTMLElement) {
-			return item.getAttribute('value') || item.getAttribute('data-value') || item.getAttribute('id');
+		function itemValue(item: HTMLElement): string | number | null {
+			const value = item.getAttribute('value') || item.getAttribute('data-value') || item.getAttribute('id');
+			if (isNumericValue) return value ? parseInt(value) || null : null;
+
+			return value;
 		}
 
 		function generateCSS() {
