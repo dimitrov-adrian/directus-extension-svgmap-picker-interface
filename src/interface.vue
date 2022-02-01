@@ -27,6 +27,10 @@ export default defineComponent({
 			required: true,
 			type: String,
 		},
+		valueAttr: {
+			type: String,
+			default: null,
+		},
 		svg: {
 			type: String,
 			default: null,
@@ -48,29 +52,28 @@ export default defineComponent({
 	setup(props, { emit, attrs }) {
 		if (!props.selector || !props.svg) return;
 
-		const activeClassName = 'active';
 		const isNumericValue = ['bigInteger', 'integer'].includes(props.type);
 		const haveForeignKey = attrs['field-data']?.schema?.foreign_key_column;
 
 		const mapbox = ref<HTMLElement>();
-		const mapboxCustomCSS = ref<HTMLStyleElement>();
 		const elements = ref<NodeListOf<HTMLElement>>();
 
 		onMounted(() => {
 			if (!mapbox.value) return;
 
-			const shadow = mapbox.value.attachShadow({ mode: 'open' });
-			shadow.innerHTML = props.svg;
-
-			mapboxCustomCSS.value = document.createElement('style');
-			mapboxCustomCSS.value.innerHTML = generateCSS();
-			shadow.querySelector('svg')?.prepend(mapboxCustomCSS.value);
-
 			try {
 				document.createDocumentFragment().querySelector(props.selector);
 			} catch (error) {
 				window.console.warn('directus-extension-svgmap-picker: Invalid selector: %s', props.selector);
+				return;
 			}
+
+			const svgStylesheet = document.createElement('style');
+			svgStylesheet.innerHTML = generateCSS();
+
+			const shadow = mapbox.value.attachShadow({ mode: 'closed', delegatesFocus: true });
+			shadow.innerHTML = props.svg;
+			shadow.querySelector('svg')?.prepend(svgStylesheet);
 
 			elements.value = shadow.querySelectorAll(props.selector);
 			elements.value?.forEach((item, index) => {
@@ -103,13 +106,13 @@ export default defineComponent({
 		function populate(value: any) {
 			if (!elements.value) return;
 
-			for (const item of elements.value as NodeListOf<HTMLElement>) {
+			for (const item of elements.value) {
 				const isActive = value
 					? props.type === 'csv'
 						? value.includes(itemValue(item))
 						: itemValue(item) === value
 					: false;
-				item.classList.toggle(activeClassName, isActive);
+				requestAnimationFrame(() => item.classList.toggle('active', isActive));
 			}
 		}
 
@@ -162,26 +165,31 @@ export default defineComponent({
 			emit('input', value);
 		}
 
-		function itemValue(item: HTMLElement): string | number | null {
-			const value = item.getAttribute('value') || item.getAttribute('data-value') || item.getAttribute('id');
-			if (isNumericValue) return value ? parseInt(value) || null : null;
+		function itemValue(element: HTMLElement): string | number | null {
+			// Consider removing id
+			const value = props.valueAttr ? element.getAttribute(props.valueAttr) : element.dataset.value || element.id;
 
+			if (isNumericValue) return value ? parseInt(value) || null : null;
 			return value;
 		}
 
 		function generateCSS() {
 			return `
-			${props.selector} {
+			${makeSelector('')} {
 				cursor: pointer;
 				outline: none;
 			}
-			${props.selector}:focus-visible,
-			${props.selector}:hover {
+			${makeSelector(':focus-visible')},
+			${makeSelector(':hover')} {
 				fill: ${props.colorHover || 'var(--v-button-background-color-hover)'};
 			}
-			${props.selector}.active {
+			${makeSelector('.active')} {
 				fill: ${props.colorActive || 'var(--v-button-background-color-active)'};
 			}`;
+		}
+
+		function makeSelector(selector?: string) {
+			return props.selector.split(',').map((singular) => singular + selector);
 		}
 	},
 });
