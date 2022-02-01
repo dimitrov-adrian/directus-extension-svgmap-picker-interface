@@ -18,6 +18,11 @@ export default {
 
 		// Override properties
 		props: {
+			// Value attribute source.
+			valueAttr: {
+				default: 'data-value',
+			},
+
 			// Border around the image.
 			bordered: {
 				default: false,
@@ -34,7 +39,7 @@ export default {
 				default: `
 					<svg width="250" height="50" xmlns="http://www.w3.org/2000/svg">
 
-						<!-- Custom styling using (:hover and .active) classes -->
+						<!-- Custom styling using :hover and .active classes -->
 						<style>
 							.choice:hover path {
 								fill-opacity: .9;
@@ -50,14 +55,14 @@ export default {
 
 						<!-- Define selectable blocks -->
 
-						<g value="bue_pill" class="choice">
-							<path d="m130,26c0,-10.86758 9.13242,-20 20,-20l72,0c10.86758,0 20,9.13242 20,20l0,0c0,10.86758 -9.13242,20 -20,20l-72,0c-10.86758,0 -20,-9.13242 -20,-20l0,0z" stroke-width="0" stroke="#000" fill="#426373"/>
-							<text text-anchor="start" font-size="20" y="34" x="151" stroke-width="0" stroke="#000" fill="#B1FFFF">Blue Pill</text>
+						<g data-value="bue_pill" class="choice">
+							<path d="M130 26c0-11 9-20 20-20h72c11 0 20 9 20 20s-9 20-20 20h-72c-11 0-20-9-20-20z" fill="#426373"/>
+							<text font-size="20" y="34" x="151" fill="#B1FFFF">Blue Pill</text>
 						</g>
 
-						<g value="red_pill" class="choice">
-							<path d="m7,26c0,-10.86758 9.13242,-20 20,-20l72,0c10.86758,0 20,9.13242 20,20l0,0c0,10.86758 -9.13242,20 -20,20l-72,0c-10.86758,0 -20,-9.13242 -20,-20l0,0z" stroke-width="0" stroke="#000" fill="#805064"/>
-							<text text-anchor="start" font-size="20" y="34" x="29" stroke-width="0" stroke="#000" fill="#FFAFCC">Red Pill</text>
+						<g data-value="red_pill" class="choice">
+							<path d="M7 26C7 15 16 6 27 6h72c11 0 20 9 20 20s-9 20-20 20H27C16 46 7 37 7 26z" fill="#805064"/>
+							<text font-size="20" y="34" x="29" fill="#FFAFCC">Red Pill</text>
 						</g>
 
 					</svg>`,
