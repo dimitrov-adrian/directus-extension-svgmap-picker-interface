@@ -75,6 +75,7 @@ of these is ready to be placed in your `./extensions/interfaces`
 			fill-opacity: .75;
 		}
 		.choice.active path {
+			stroke: black;
 			stroke-width: 2;
 			fill-opacity: 1;
 		}
