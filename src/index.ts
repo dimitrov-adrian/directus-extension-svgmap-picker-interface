@@ -14,6 +14,18 @@ export default defineInterface({
 	options: () => {
 		return [
 			{
+				field: 'svg',
+				name: 'SVG',
+				meta: {
+					width: 'full',
+					interface: 'input-code',
+					options: {
+						language: 'xml',
+						placeholder: '$t:xml',
+					},
+				},
+			},
+			{
 				field: 'selector',
 				name: 'CSS selector',
 				meta: {
@@ -49,18 +61,6 @@ export default defineInterface({
 			// 		default_value: 'data-value',
 			// 	},
 			// },
-			{
-				field: 'svg',
-				name: 'SVG',
-				meta: {
-					width: 'full',
-					interface: 'input-code',
-					options: {
-						language: 'xml',
-						placeholder: '$t:xml',
-					},
-				},
-			},
 			{
 				field: 'colorHover',
 				name: 'Hover Color',

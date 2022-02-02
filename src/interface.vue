@@ -78,7 +78,7 @@ export default defineComponent({
 			elements.value = shadow.querySelectorAll(props.selector);
 			elements.value?.forEach((item, index) => {
 				item.tabIndex = index + 1;
-				item.addEventListener('keyup', keySelectHandler);
+				item.addEventListener('keydown', keySelectHandler);
 				item.addEventListener('click', clickSelectHandler);
 			});
 
@@ -117,7 +117,7 @@ export default defineComponent({
 		}
 
 		function keySelectHandler(this: HTMLElement, event: KeyboardEvent) {
-			if (!(event.key === ' ' || event.key === 'Spacebar' || event.key === 'Enter')) return;
+			if (event.key !== ' ' && event.key !== 'Spacebar' && event.key !== 'Enter') return;
 
 			event.preventDefault();
 			emitter(this);
