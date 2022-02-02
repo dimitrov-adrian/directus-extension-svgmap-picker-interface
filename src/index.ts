@@ -7,7 +7,9 @@ export default defineInterface({
 	description: 'Select a value from a SVG map',
 	icon: 'grain',
 	component: InterfaceSlug,
-	types: ['string', 'integer', 'bigInteger', 'uuid', 'csv'],
+	types: ['uuid', 'string', 'text', 'integer', 'bigInteger', 'csv'],
+	// There is strange bug in Directus that broke interfaces if define both standard and M2O types.
+	// Anyway, for custom or "packed" extensions, simply could force to be only M2O if needs
 	// relational: true,
 	// localTypes: ['m2o', 'standard'],
 	group: 'selection',
@@ -42,49 +44,6 @@ export default defineInterface({
 					default_value: null,
 				},
 			},
-			// Unshure if this need to be exposed?!
-			// {
-			// 	field: 'valueAttr',
-			// 	name: 'Attribute',
-			// 	meta: {
-			// 		width: 'full',
-			// 		interface: 'select-dropdown',
-			// 		options: {
-			// 			allowOther: true,
-			// 			choices: [
-			// 				{ text: 'data-value', value: 'data-value' },
-			// 				{ text: 'id', value: 'id' },
-			// 			],
-			// 		},
-			// 	},
-			// 	schema: {
-			// 		default_value: 'data-value',
-			// 	},
-			// },
-			{
-				field: 'colorHover',
-				name: 'Hover Color',
-				type: 'string',
-				meta: {
-					interface: 'select-color',
-					width: 'half',
-				},
-				schema: {
-					default_value: null,
-				},
-			},
-			{
-				field: 'colorActive',
-				name: 'Active Color',
-				type: 'string',
-				meta: {
-					interface: 'select-color',
-					width: 'half',
-				},
-				schema: {
-					default_value: null,
-				},
-			},
 			{
 				field: 'bordered',
 				name: '$t:displays.formatted-value.border',
@@ -98,6 +57,18 @@ export default defineInterface({
 				},
 				schema: {
 					default_value: false,
+				},
+			},
+			{
+				field: 'tooltips',
+				name: '$t:tooltip',
+				type: 'boolean',
+				meta: {
+					width: 'half',
+					interface: 'boolean',
+				},
+				schema: {
+					default_value: true,
 				},
 			},
 		];

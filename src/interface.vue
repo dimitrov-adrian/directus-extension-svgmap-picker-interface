@@ -1,5 +1,9 @@
 <template>
-	<div ref="mapbox" :class="{ bordered, map: true }" />
+	<div ref="mapbox" :class="{ bordered, disabled }" />
+
+	<div v-if="tooltips && tooltip" class="tooltip top visible" :style="tooltip.pos">
+		{{ tooltip.title }}
+	</div>
 </template>
 
 <script lang="ts">
@@ -9,6 +13,10 @@ export default defineComponent({
 	props: {
 		type: {
 			type: String,
+			required: true,
+		},
+		autofocus: {
+			type: Boolean,
 			required: true,
 		},
 		collection: {
@@ -23,29 +31,25 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
-		selector: {
-			required: true,
-			type: String,
-		},
-		valueAttr: {
-			type: String,
-			default: null,
-		},
 		svg: {
 			type: String,
-			default: null,
+			default: '',
 		},
-		colorHover: {
+		selector: {
 			type: String,
-			default: null,
-		},
-		colorActive: {
-			type: String,
-			default: null,
+			default: '',
 		},
 		bordered: {
 			type: Boolean,
 			default: false,
+		},
+		tooltips: {
+			type: Boolean,
+			default: true,
+		},
+		valueAttr: {
+			type: String,
+			default: null,
 		},
 	},
 	emits: ['input'],
@@ -56,7 +60,9 @@ export default defineComponent({
 		const haveForeignKey = attrs['field-data']?.schema?.foreign_key_column;
 
 		const mapbox = ref<HTMLElement>();
-		const elements = ref<NodeListOf<HTMLElement>>();
+		const elements = ref<NodeListOf<SVGElement>>();
+
+		const tooltip = ref();
 
 		onMounted(() => {
 			if (!mapbox.value) return;
@@ -75,11 +81,29 @@ export default defineComponent({
 			shadow.innerHTML = props.svg;
 			shadow.querySelector('svg')?.prepend(svgStylesheet);
 
+			if (props.tooltips) {
+				mapbox.value.addEventListener('mouseleave', hideTooltip);
+				mapbox.value.addEventListener('blur', hideTooltip);
+			}
+
 			elements.value = shadow.querySelectorAll(props.selector);
 			elements.value?.forEach((item, index) => {
 				item.tabIndex = index + 1;
+				if (!index && props.autofocus) {
+					item.focus();
+				}
+
 				item.addEventListener('keydown', keySelectHandler);
 				item.addEventListener('click', clickSelectHandler);
+
+				if (props.tooltips) {
+					if (!item.hasAttribute('title')) {
+						item.setAttribute('title', (itemValue(item) || '').toString());
+					}
+
+					item.addEventListener('mouseover', showTooltip);
+					item.addEventListener('focus', showTooltip);
+				}
 			});
 
 			populate(props.value);
@@ -100,6 +124,7 @@ export default defineComponent({
 		);
 
 		return {
+			tooltip,
 			mapbox,
 		};
 
@@ -116,19 +141,40 @@ export default defineComponent({
 			}
 		}
 
-		function keySelectHandler(this: HTMLElement, event: KeyboardEvent) {
+		function keySelectHandler(this: SVGElement, event: KeyboardEvent) {
 			if (event.key !== ' ' && event.key !== 'Spacebar' && event.key !== 'Enter') return;
 
 			event.preventDefault();
 			emitter(this);
 		}
 
-		function clickSelectHandler(this: HTMLElement, event: MouseEvent) {
+		function clickSelectHandler(this: SVGElement, event: MouseEvent) {
 			event.preventDefault();
 			emitter(this);
 		}
 
-		function emitter(element: HTMLElement) {
+		function showTooltip(this: SVGElement) {
+			if (!mapbox.value) return;
+
+			const elementPos = this.getBoundingClientRect();
+			const parentPos = mapbox.value.getBoundingClientRect();
+
+			tooltip.value = {
+				pos: {
+					top: elementPos.top - parentPos.top + 'px',
+					left: elementPos.left + Math.round(elementPos.width / 2) - parentPos.left + 'px',
+				},
+				title: this.getAttribute('title'),
+			};
+		}
+
+		function hideTooltip() {
+			tooltip.value = null;
+		}
+
+		function emitter(element: SVGElement) {
+			if (props.disabled) return;
+
 			const value = itemValue(element);
 
 			if (!value) {
@@ -142,7 +188,7 @@ export default defineComponent({
 					return;
 				}
 
-				if (props.value.includes(value)) {
+				if (props.value.includes(value.toString())) {
 					const newValue = props.value.filter((item: string) => item !== value);
 					emit('input', newValue.length > 0 ? newValue : null);
 				} else {
@@ -165,11 +211,14 @@ export default defineComponent({
 			emit('input', value);
 		}
 
-		function itemValue(element: HTMLElement): string | number | null {
-			// Consider removing id
-			const value = props.valueAttr ? element.getAttribute(props.valueAttr) : element.dataset.value || element.id;
+		function itemValue(element: SVGElement): string | number | null {
+			const value = (props.valueAttr ? element.getAttribute(props.valueAttr) : element.dataset.value) ?? null;
 
-			if (isNumericValue) return value ? parseInt(value) || null : null;
+			if (isNumericValue && value) {
+				const intValue = parseInt(value);
+				return isNaN(intValue) ? null : parseInt(value);
+			}
+
 			return value;
 		}
 
@@ -178,14 +227,21 @@ export default defineComponent({
 			${makeSelector('')} {
 				cursor: pointer;
 				outline: none;
+				fill: var(--background-normal-alt);
+				stroke: var(--background-input);
+				transition: fill var(--fast);
 			}
 			${makeSelector(':focus-visible')},
 			${makeSelector(':hover')} {
-				fill: ${props.colorHover || 'var(--v-button-background-color-hover)'};
+				fill: var(--primary-125);
 			}
 			${makeSelector('.active')} {
-				fill: ${props.colorActive || 'var(--v-button-background-color-active)'};
-			}`;
+				fill: var(--primary);
+			}
+			${makeSelector('.active:hover')} {
+				fill: var(--primary-110);
+			}
+			`;
 		}
 
 		function makeSelector(selector?: string) {
@@ -209,5 +265,22 @@ export default defineComponent({
 
 .bordered:focus-within {
 	border: var(--border-width) solid var(--primary);
+}
+
+.disabled {
+	filter: grayscale(0.7);
+	pointer-events: none;
+}
+
+.tooltip {
+	width: fit-content;
+	margin-top: -0.5em;
+	text-align: center;
+	transform: translate(-50%, -100%);
+	transition: top var(--fast), left var(--fast);
+}
+
+.tooltip::after {
+	display: none;
 }
 </style>

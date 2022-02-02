@@ -55,12 +55,12 @@ export default {
 
 						<!-- Define selectable blocks -->
 
-						<g data-value="bue_pill" class="choice">
+						<g data-value="bue_pill" class="choice" title="The blue pill">
 							<path d="M130 26c0-11 9-20 20-20h72c11 0 20 9 20 20s-9 20-20 20h-72c-11 0-20-9-20-20z" fill="#426373"/>
 							<text font-size="20" y="34" x="151" fill="#B1FFFF">Blue Pill</text>
 						</g>
 
-						<g data-value="red_pill" class="choice">
+						<g data-value="red_pill" class="choice" title="The blue pill">
 							<path d="M7 26C7 15 16 6 27 6h72c11 0 20 9 20 20s-9 20-20 20H27C16 46 7 37 7 26z" fill="#805064"/>
 							<text font-size="20" y="34" x="29" fill="#FFAFCC">Red Pill</text>
 						</g>
