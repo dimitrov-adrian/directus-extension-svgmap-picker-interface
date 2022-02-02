@@ -95,3 +95,10 @@ of these is ready to be placed in your `./extensions/interfaces`
 
 </svg>
 ```
+
+## Credits
+
+- Demo maps (Bulgarian Provinces, Countries and US States) are licensed under
+  [CC BY-NC 4.0](http://creativecommons.org/licenses/by-nc/4.0/) and are downloaded from
+  https://www.amcharts.com/svg-maps/
+- Human muscles demo uses modified version of https://svgshare.com/s/Kg6, all credits goes to original creator
