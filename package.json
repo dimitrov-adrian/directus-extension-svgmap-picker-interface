@@ -1,6 +1,6 @@
 {
   "name": "directus-extension-svgmap-picker-interface",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "email": "dimitrov.adrian+gh@gmail.com",
     "name": "Adrian Dimitrov"
@@ -27,7 +27,7 @@
     "type": "interface",
     "path": "dist/index.js",
     "source": "src/index.ts",
-    "host": "^v9.0.0",
+    "host": "^v9.9.0",
     "hidden": false
   },
   "files": [
@@ -38,9 +38,9 @@
     "dev": "directus-extension build -w --no-minify"
   },
   "devDependencies": {
-    "@directus/extensions-sdk": "^9.5.0",
+    "@directus/extensions-sdk": "^9.10.0",
     "directus-codestyle": "https://github.com/dimitrov-adrian/directus-codestyle.git",
-    "typescript": "^4.5.2"
+    "typescript": "^4.6.4"
   },
   "prettier": "directus-codestyle/prettier",
   "stylelint": {

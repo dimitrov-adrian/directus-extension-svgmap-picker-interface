@@ -24,7 +24,7 @@ export default defineComponent({
 			required: true,
 		},
 		value: {
-			type: String,
+			type: [String, Array],
 			default: null,
 		},
 		disabled: {
@@ -188,8 +188,8 @@ export default defineComponent({
 					return;
 				}
 
-				if (props.value.includes(value.toString())) {
-					const newValue = props.value.filter((item: string) => item !== value);
+				if ((props.value as string[]).includes(value.toString())) {
+					const newValue = (props.value as string[]).filter((item: string) => item !== value);
 					emit('input', newValue.length > 0 ? newValue : null);
 				} else {
 					emit('input', [...props.value, value]);

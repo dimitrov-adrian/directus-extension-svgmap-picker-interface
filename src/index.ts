@@ -1,12 +1,12 @@
 import { defineInterface } from '@directus/extensions-sdk';
-import InterfaceSlug from './interface.vue';
+import InterfaceSVGPicker from './interface.vue';
 
 export default defineInterface({
 	id: 'extension-svgmap-picker',
 	name: 'SVG Map Picker',
 	description: 'Select a value from a SVG map',
 	icon: 'grain',
-	component: InterfaceSlug,
+	component: InterfaceSVGPicker,
 	types: ['uuid', 'string', 'text', 'integer', 'bigInteger', 'csv'],
 	// There is strange bug in Directus that broke interfaces if define both standard and M2O types.
 	// Anyway, for custom or "packed" extensions, simply could force to be only M2O if needs
